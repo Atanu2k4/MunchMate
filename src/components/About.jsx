@@ -74,11 +74,11 @@ const About = () => {
     {
       name: "Shreyas Saha",
       role: "Full-Stack Developer",
-      specialty: "ReactJS,Firebase,API Integration"
+      specialty: "ReactJS , Firebase , API Integration"
     },
     {
       name: "Aninda Debta",
-      role: "UI/UX Designer",
+      role: "UI/UX Designer + Developer",
       specialty: "User Experience",
     },
   ];
@@ -92,9 +92,9 @@ const About = () => {
 
   return (
     <section
-      id="about" // Added ID here for navigation linking
+      id="about"
       ref={aboutRef}
-      className="relative py-24 text-white overflow-hidden"
+      className="relative pt-16 pb-0 text-white overflow-hidden mb-0" // Added mb-0 to explicitly remove bottom margin
       style={{
         background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
       }}
@@ -112,7 +112,7 @@ const About = () => {
       <div className="container mx-auto px-6 relative z-10">
         {/* Header Section */}
         <motion.div
-          className="text-center mb-20"
+          className="text-center mb-16"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.2 }}
@@ -136,7 +136,7 @@ const About = () => {
             About Us
           </motion.h2>
           <motion.p
-            className="text-xl mb-12 max-w-2xl mx-auto text-gray-300 leading-relaxed"
+            className="text-xl mb-8 max-w-2xl mx-auto text-gray-300 leading-relaxed"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.5 }}
@@ -147,7 +147,7 @@ const About = () => {
         </motion.div>
 
         {/* Team Section */}
-        <div ref={teamRef} className="mb-16">
+        <div ref={teamRef} className="mb-12">
           <motion.h3
             className="text-3xl font-bold mb-10 text-center"
             initial={{ opacity: 0 }}
@@ -188,10 +188,10 @@ const About = () => {
           </div>
         </div>
 
-        {/* Features Section - Modified to match original structure */}
+        {/* Features Section */}
         <motion.div
           ref={featuresRef}
-          className="mt-16"
+          className="mt-12 pb-0" // Remove bottom margin, add pb-0
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
@@ -202,7 +202,7 @@ const About = () => {
               Our Features
             </span>
           </h3>
-          <ul className="flex flex-col items-center text-lg space-y-4 text-gray-300">
+          <ul className="flex flex-col items-center text-lg space-y-4 text-gray-300 mb-0 pb-8">
             {features.map((feature, i) => (
               <motion.li
                 key={i}
