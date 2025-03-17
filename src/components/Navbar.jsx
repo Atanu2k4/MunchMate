@@ -3,20 +3,32 @@ import { FiMenu, FiX, FiUser, FiLogIn, FiHome, FiBook, FiInfo, FiMail } from "re
 import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
+import { useNavigate, useLocation } from "react-router-dom";
 
 gsap.registerPlugin(ScrollToPlugin);
 
-const Navbar = () => {
+const Navbar = ({ isAdmin }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeItem, setActiveItem] = useState("Home");
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const menuItems = [
-    { name: "Home", icon: <FiHome /> },
-    { name: "Menu", icon: <FiBook /> },
-    { name: "About", icon: <FiInfo /> },
-    { name: "Contact", icon: <FiMail /> }
+    { name: "Home", icon: <FiHome />, path: "/" },
+    { name: "Menu", icon: <FiBook />, path: "/menu" },
+    { name: "About", icon: <FiInfo />, path: "/" },
+    { name: "Contact", icon: <FiMail />, path: "/" }
   ];
+
+  useEffect(() => {
+    // Set active item based on current path
+    const currentPath = location.pathname;
+    const currentItem = menuItems.find(item => item.path === currentPath);
+    if (currentItem) {
+      setActiveItem(currentItem.name);
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -48,26 +60,36 @@ const Navbar = () => {
     };
   }, [isOpen]);
 
-  // Handle smooth scrolling with GSAP
-  const handleNavigation = (sectionId, itemName) => {
-    const section = document.getElementById(sectionId);
+  // Handle navigation - either scroll or redirect
+  const handleNavigation = (itemName, itemPath) => {
+    // Close the mobile menu if it's open
+    setIsOpen(false);
 
-    if (section) {
-      // Close the mobile menu if it's open
-      setIsOpen(false);
+    // Set the active menu item
+    setActiveItem(itemName);
 
-      // Set the active menu item
-      setActiveItem(itemName);
+    // If it's the menu page, navigate to it
+    if (itemName === "Menu") {
+      navigate(itemPath);
+    } else if (location.pathname === "/") {
+      // If we're on the home page, scroll to section
+      const sectionId = itemName.toLowerCase();
+      const section = document.getElementById(sectionId);
 
-      // Use GSAP to smoothly scroll to the section
-      gsap.to(window, {
-        duration: 1,
-        scrollTo: {
-          y: `#${sectionId}`,
-          offsetY: 80 // Offset to account for the navbar height
-        },
-        ease: "power3.inOut"
-      });
+      if (section) {
+        // Use GSAP to smoothly scroll to the section
+        gsap.to(window, {
+          duration: 1,
+          scrollTo: {
+            y: `#${sectionId}`,
+            offsetY: 80 // Offset to account for the navbar height
+          },
+          ease: "power3.inOut"
+        });
+      }
+    } else {
+      // If we're on another page, navigate to home first
+      navigate(itemPath);
     }
   };
 
@@ -85,8 +107,8 @@ const Navbar = () => {
       <div className="flex justify-between items-center w-full px-6 py-3 md:px-8">
         {/* Brand Name with enhanced sparkle effect */}
         <motion.a
-          href="/"
-          className="text-2xl font-bold bg-gradient-to-r from-purple-600 via-pink-500 to-indigo-600 bg-clip-text text-transparent relative"
+          onClick={() => navigate("/")}
+          className="text-2xl font-bold bg-gradient-to-r from-purple-600 via-pink-500 to-indigo-600 bg-clip-text text-transparent relative cursor-pointer"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
@@ -118,7 +140,7 @@ const Navbar = () => {
               key={item.name}
               onClick={(e) => {
                 e.preventDefault();
-                handleNavigation(item.name.toLowerCase(), item.name);
+                handleNavigation(item.name, item.path);
               }}
               className={`flex items-center space-x-1 text-gray-700 hover:text-purple-600 relative font-medium cursor-pointer ${
                 activeItem === item.name ? "text-purple-600 font-semibold" : ""
@@ -141,29 +163,45 @@ const Navbar = () => {
 
         {/* Auth Buttons (Desktop) */}
         <div className="hidden md:flex space-x-3 items-center">
-          <motion.a
-            href="#signin"
-            className="flex items-center space-x-1 text-gray-700 hover:text-purple-600 px-4 py-2 rounded-full border border-transparent hover:border-purple-200 transition-all duration-300"
-            whileHover={{ scale: 1.05, backgroundColor: "rgba(233, 213, 255, 0.3)" }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <FiLogIn className="inline-block" />
-            <span>Sign In</span>
-          </motion.a>
+          {isAdmin ? (
+            <motion.a
+              onClick={() => navigate("/admin/menu")}
+              className="flex items-center space-x-1 bg-amber-500 text-white px-4 py-2 rounded-full hover:shadow-lg transition-all duration-300 cursor-pointer"
+              whileHover={{
+                scale: 1.05,
+                boxShadow: "0 10px 15px rgba(245, 158, 11, 0.3)",
+              }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <span>Admin Panel</span>
+            </motion.a>
+          ) : (
+            <>
+              <motion.a
+                href="#signin"
+                className="flex items-center space-x-1 text-gray-700 hover:text-purple-600 px-4 py-2 rounded-full border border-transparent hover:border-purple-200 transition-all duration-300"
+                whileHover={{ scale: 1.05, backgroundColor: "rgba(233, 213, 255, 0.3)" }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <FiLogIn className="inline-block" />
+                <span>Sign In</span>
+              </motion.a>
 
-          <motion.a
-            href="#signup"
-            className="flex items-center space-x-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-full hover:shadow-lg transition-all duration-300"
-            whileHover={{
-              scale: 1.05,
-              boxShadow: "0 10px 15px rgba(99, 102, 241, 0.3)",
-              background: "linear-gradient(to right, #8b5cf6, #ec4899, #6366f1)"
-            }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <FiUser className="inline-block" />
-            <span>Sign Up</span>
-          </motion.a>
+              <motion.a
+                href="#signup"
+                className="flex items-center space-x-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-full hover:shadow-lg transition-all duration-300"
+                whileHover={{
+                  scale: 1.05,
+                  boxShadow: "0 10px 15px rgba(99, 102, 241, 0.3)",
+                  background: "linear-gradient(to right, #8b5cf6, #ec4899, #6366f1)"
+                }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <FiUser className="inline-block" />
+                <span>Sign Up</span>
+              </motion.a>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -215,7 +253,7 @@ const Navbar = () => {
                 key={item.name}
                 onClick={(e) => {
                   e.preventDefault();
-                  handleNavigation(item.name.toLowerCase(), item.name);
+                  handleNavigation(item.name, item.path);
                 }}
                 className={`flex items-center justify-center space-x-2 text-gray-700 hover:text-purple-600 py-2 font-medium cursor-pointer ${
                   activeItem === item.name ? "text-purple-600 font-semibold" : ""
@@ -231,35 +269,51 @@ const Navbar = () => {
             ))}
 
             <div className="pt-2 flex flex-col space-y-3">
-              <motion.a
-                href="#signin"
-                className="flex items-center justify-center space-x-2 text-purple-600 border border-purple-200 px-4 py-2 rounded-full hover:bg-purple-50"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4 }}
-                whileHover={{ scale: 1.05, backgroundColor: "rgba(233, 213, 255, 0.3)" }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <FiLogIn className="inline-block" />
-                <span>Sign In</span>
-              </motion.a>
+              {isAdmin ? (
+                <motion.a
+                  onClick={() => navigate("/admin/menu")}
+                  className="flex items-center justify-center space-x-2 bg-amber-500 text-white px-4 py-2 rounded-full hover:shadow-lg cursor-pointer"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <span>Admin Panel</span>
+                </motion.a>
+              ) : (
+                <>
+                  <motion.a
+                    href="#signin"
+                    className="flex items-center justify-center space-x-2 text-purple-600 border border-purple-200 px-4 py-2 rounded-full hover:bg-purple-50"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.4 }}
+                    whileHover={{ scale: 1.05, backgroundColor: "rgba(233, 213, 255, 0.3)" }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <FiLogIn className="inline-block" />
+                    <span>Sign In</span>
+                  </motion.a>
 
-              <motion.a
-                href="#signup"
-                className="flex items-center justify-center space-x-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-full hover:shadow-lg"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                whileHover={{
-                  scale: 1.05,
-                  boxShadow: "0 10px 15px rgba(99, 102, 241, 0.3)",
-                  background: "linear-gradient(to right, #8b5cf6, #ec4899, #6366f1)"
-                }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <FiUser className="inline-block" />
-                <span>Sign Up</span>
-              </motion.a>
+                  <motion.a
+                    href="#signup"
+                    className="flex items-center justify-center space-x-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-full hover:shadow-lg"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5 }}
+                    whileHover={{
+                      scale: 1.05,
+                      boxShadow: "0 10px 15px rgba(99, 102, 241, 0.3)",
+                      background: "linear-gradient(to right, #8b5cf6, #ec4899, #6366f1)"
+                    }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <FiUser className="inline-block" />
+                    <span>Sign Up</span>
+                  </motion.a>
+                </>
+              )}
             </div>
           </motion.div>
         )}
