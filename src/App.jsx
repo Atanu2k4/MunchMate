@@ -5,6 +5,7 @@ import Hero from "./components/Hero";
 import CustomCursor from "./components/CustomCursor";
 import Menu from './components/Menu';
 import AdminMenu from './components/AdminMenu';
+import Footer from './components/Footer'
 import './App.css';
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
 
         {/* Add more routes as needed */}
       </Routes>
+      {!isAdmin && <Footer />}
     </div>
   );
 }
